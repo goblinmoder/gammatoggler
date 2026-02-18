@@ -31,57 +31,27 @@ wstring ExePath()
 void ApplyProfile(LPCWSTR monitorDeviceID, PCWSTR profilePath)
 {
     wstring profileSource = ExePath() + L"\\" + profileName;
-    if (!InstallColorProfileW(NULL, profileSource.c_str()))
-    {
-        DWORD err = GetLastError();
-        if (err != ERROR_ALREADY_EXISTS)
-        {
-            wcout << L"  InstallColorProfileW failed: " << err << L"\n";
-            return;
-        }
-    }
-
-    if (!WcsSetUsePerUserProfiles(monitorDeviceID, CLASS_MONITOR, TRUE))
-    {
-        wcout << L"WcsSetUsePerUserProfiles error"
-              << GetLastError() << L"\n";
-        return;
-    }
-
-    if (!WcsAssociateColorProfileWithDevice(
+    InstallColorProfileW(NULL, profileSource.c_str());
+    WcsSetUsePerUserProfiles(monitorDeviceID, CLASS_MONITOR, TRUE);
+    WcsAssociateColorProfileWithDevice(
             WCS_PROFILE_MANAGEMENT_SCOPE_CURRENT_USER,
             profilePath,
-            monitorDeviceID))
-    {
-        wcout << L"WcsAssociateColorProfileWithDevice error"
-              << GetLastError() << L"\n";
-        return;
-    }
-
-    if (!WcsSetDefaultColorProfile(
+            monitorDeviceID);
+    WcsSetDefaultColorProfile(
             WCS_PROFILE_MANAGEMENT_SCOPE_CURRENT_USER,
             monitorDeviceID,
             CPT_ICC,
             CPST_NONE,
             0,
-            profilePath))
-    {
-        wcout << L"WcsSetDefaultColorProfile error"
-              << GetLastError() << L"\n";
-        return;
-    }
+            profilePath);
 }
 
 void RemoveProfile(LPCWSTR monitorDeviceID, LPCWSTR profilePath)
 {
-    if (!WcsDisassociateColorProfileFromDevice(
+    WcsDisassociateColorProfileFromDevice(
             WCS_PROFILE_MANAGEMENT_SCOPE_CURRENT_USER,
             profilePath,
-            monitorDeviceID))
-    {
-        wcout << L"WcsAssociateColorProfileWithDevice error"
-              << GetLastError() << L"\n";
-    }
+            monitorDeviceID);
 }
 
 list<DISPLAY_DEVICEW> getMonitors()
